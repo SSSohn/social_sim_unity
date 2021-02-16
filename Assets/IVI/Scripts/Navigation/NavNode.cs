@@ -1,25 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
 [ExecuteInEditMode]
 public class NavNode : MonoBehaviour
 {
-    public bool createNode = false;
-    public bool createGroupNode = false;
-    public GameObject createConnection = null;
-    public float radius;
+    public bool         createNode = false;
+    public bool         createGroupNode = false;
+    public GameObject   createConnection = null;
+    public float        radius;
 
-    private Dictionary<NavNode, NavEdge> neighbors = new Dictionary<NavNode, NavEdge>();
-    private MeshRenderer render;
+    private Dictionary<NavNode, NavEdge>   neighbors = new Dictionary<NavNode, NavEdge>();
+    [HideInInspector]
+    public MeshRenderer render;
 
     public void Start()
     {
         render = GetComponent<MeshRenderer>();
-        NavManager.allNodes.Add(this);
-
-        radius = NavManager.NODE_RADIUS;
     }
 
     public void Update()
@@ -33,9 +32,7 @@ public class NavNode : MonoBehaviour
 
             render.enabled = true;
             transform.localScale = Vector3.one * radius * 2;
-
-            NavManager.allNodes.Add(this);
-
+            
             if (createNode)
             {
                 createNode = false;
@@ -55,12 +52,9 @@ public class NavNode : MonoBehaviour
             if (createConnection != null)
             {
                 var otherNode = createConnection.GetComponent<NavNode>();
-                if (otherNode != null)
+                if (otherNode != null && otherNode != this)
                 {
                     var navEdge = NavManager.inst.CreateEdge(this, otherNode);
-
-                    neighbors.Add(otherNode, navEdge);
-                    otherNode.neighbors.Add(this, navEdge);
                 }
 
                 createConnection = null;
@@ -91,16 +85,16 @@ public class NavNode : MonoBehaviour
             render.enabled = false;
         }
     }
-    
+
     public void OnDestroy()
     {
-        foreach (var n in neighbors)
+        foreach (var go in GameObject.FindObjectsOfType<NavEdge>())
         {
-            n.Key.GetNeighbors().Remove(this);
-            DestroyImmediate(n.Value.gameObject);
+            if (go.node1 == this || go.node2 == this)
+            {
+                DestroyImmediate(go.gameObject);
+            }
         }
-
-        NavManager.allNodes.Remove(this);
     }
 
     #region Public Functions
@@ -109,6 +103,6 @@ public class NavNode : MonoBehaviour
     {
         return neighbors;
     }
-
+    
     #endregion
 }

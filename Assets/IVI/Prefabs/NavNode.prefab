@@ -92,5 +92,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a565a4acb6140684aa32626d1a6788a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  createNeighborNode: 0
+  createNode: 0
+  createGroupNode: 0
   createConnection: {fileID: 0}
+  radius: 1

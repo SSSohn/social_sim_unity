@@ -7,17 +7,19 @@ public class NavEdge : MonoBehaviour
 {
     public NavNode node1, node2;
     public float width;
-    public Activity activity = Activity.DEFAULT;
+    public Constraint constraint = Constraint.NONE;
 
     private MeshRenderer render;
 
     #region Enums
 
-    public enum Activity
+    public enum Constraint
     {
-        DEFAULT,
         NONE,
-        NORMAL_FLOW
+        NO_FLOW,
+        HIGH_FLOW,
+        FORWARD_FLOW,
+        BACKWARD_FLOW,
     }
 
     #endregion
@@ -25,7 +27,6 @@ public class NavEdge : MonoBehaviour
     void Start()
     {
         render = GetComponent<MeshRenderer>();
-        NavManager.allEdges.Add(this);
 
         width = NavManager.EDGE_WIDTH;
     }
@@ -33,32 +34,57 @@ public class NavEdge : MonoBehaviour
     void Update()
     {
         var dir = (node2.transform.position - node1.transform.position).normalized;
-        transform.position = (node1.transform.position + dir * node1.radius + node2.transform.position - dir * node2.radius) / 2;
+        var pos = (node1.transform.position + dir * node1.radius + node2.transform.position - dir * node2.radius) / 2;
+        pos.y = NavManager.EDGE_HEIGHT / 2f;
+        transform.position = pos;
         transform.LookAt(node1.transform, Vector3.up);
-        transform.localScale = new Vector3(width, NavManager.EDGE_HEIGHT * 2, Vector3.Distance(node1.transform.position, node2.transform.position) - node1.radius - node2.radius);
+        var dist = Vector3.Distance(node1.transform.position, node2.transform.position) - node1.radius - node2.radius;
+        transform.localScale = new Vector3(width, NavManager.EDGE_HEIGHT, dist);
 
-        if (Application.isEditor)
+        var eulerAngles = transform.eulerAngles;
+        eulerAngles.x = 0;
+        eulerAngles.z = 0;
+        transform.eulerAngles = eulerAngles;
+
+        #region Appearance
+
+        var angle = Mathf.Atan(NavManager.EDGE_HEIGHT / (dist / 2f)) * Mathf.Rad2Deg;
+        if (constraint == Constraint.BACKWARD_FLOW)
         {
-            #region Editor
-
-            if (render == null)
-                render = GetComponent<MeshRenderer>();
-
-            render.enabled = true;
-
-            NavManager.allEdges.Add(this);
-
-            #endregion
+            eulerAngles.x = angle;
+            transform.eulerAngles = eulerAngles;
+            transform.position += Vector3.up * NavManager.EDGE_HEIGHT;
         }
+        if (constraint == Constraint.FORWARD_FLOW)
+        {
+            eulerAngles.x = -angle;
+            transform.eulerAngles = eulerAngles;
+            transform.position += Vector3.up * NavManager.EDGE_HEIGHT;
+        }
+        if (constraint == Constraint.HIGH_FLOW)
+        {
+            var temp = transform.localScale;
+            temp.y = NavManager.EDGE_HEIGHT * 2;
+            transform.localScale = temp;
+            temp = transform.position;
+            temp.y = NavManager.EDGE_HEIGHT;
+            transform.position = temp;
+        }
+        if (constraint == Constraint.NO_FLOW)
+        {
+            var temp = transform.localScale;
+            temp.y = NavManager.EDGE_HEIGHT / 2;
+            transform.localScale = temp;
+            temp = transform.position;
+            temp.y = NavManager.EDGE_HEIGHT / 4;
+            transform.position = temp;
+        }
+
+        #endregion
+
         if (Application.isPlaying || !NavManager.VISUALIZE)
         {
             render.enabled = false;
         }
     }
-
-    private void OnDestroy()
-    {
-        NavManager.allEdges.Remove(this);
-    }
-
 }

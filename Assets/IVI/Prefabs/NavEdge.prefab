@@ -94,4 +94,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   node1: {fileID: 0}
   node2: {fileID: 0}
-  width: 1
+  width: 2
+  activity: 0
