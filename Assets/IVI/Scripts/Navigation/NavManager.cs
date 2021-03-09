@@ -29,12 +29,14 @@ public class NavManager : MonoBehaviour
     public GameObject groupNodePrefab;
     public GameObject nodesGO;
     public GameObject edgesGO;
+    public GameObject agentsGO;
     
     public const float NODE_RADIUS = 1;
     public const float EDGE_HEIGHT = 0.5f;
     public const float EDGE_WIDTH = 1f;
-    [SerializeField]
-    public static bool VISUALIZE = true;
+    public bool VISUALIZE = true;
+
+    public GameObject agentPrefab;
     
     void Awake()
     {
@@ -45,7 +47,12 @@ public class NavManager : MonoBehaviour
     {
         if (Application.isPlaying)
         {
+            VISUALIZE = false;
+
             StartCoroutine(Run());
+        } else
+        {
+            VISUALIZE = true;
         }
     }
 
@@ -59,6 +66,21 @@ public class NavManager : MonoBehaviour
         yield return null;
 
         allNodes = GameObject.FindObjectsOfType<NavNode>();
+        #region Spawn Agents
+
+        foreach (var node in allNodes)
+        {
+            for (int i = 0; i < node.spawnCount; i++)
+            {
+                var theta = Mathf.PI * 2 * Random.value;
+                var pos = node.transform.position + new Vector3(Mathf.Sin(theta), 0, Mathf.Cos(theta)) * Random.value * node.radius;
+                var agent = Instantiate(agentPrefab, pos, Quaternion.identity);
+                agent.transform.parent = agentsGO.transform;
+            }
+        }
+
+        #endregion
+
         allEdges = GameObject.FindObjectsOfType<NavEdge>();
         allAgents = GameObject.FindObjectsOfType<INavigable>();
         node2Index = new Dictionary<NavNode, int>();
@@ -110,8 +132,6 @@ public class NavManager : MonoBehaviour
 
         nodeDesired = new int[allNodes.Length];
         edgeDesired = new int[allNodes.Length, allNodes.Length];
-        nodeDiff = new int[allNodes.Length];
-        edgeDiff_OBSOLETE = new int[allNodes.Length, allNodes.Length];
         #region Initialize Desired Occupancy
 
         foreach (var node in allNodes)
@@ -160,6 +180,7 @@ public class NavManager : MonoBehaviour
                     break;
             }
         }
+        UpdateDesiredOccupancy();
 
         #endregion
 
@@ -212,8 +233,62 @@ public class NavManager : MonoBehaviour
         return navEdge;
     }
     
+    public void UpdateDesiredOccupancy()
+    {
+        nodeDesired = new int[allNodes.Length];
+        edgeDesired = new int[allNodes.Length, allNodes.Length];
+        foreach (var node in allNodes)
+        {
+            if (node.GetType() == typeof(GroupNavNode))
+            {
+                var groupNode = (GroupNavNode)node;
+                nodeDesired[node2Index[groupNode]] = groupNode.groupSize;
+            }
+        }
+        foreach (var edge in allEdges)
+        {
+            var a = node2Index[edge.node1];
+            var b = node2Index[edge.node2];
+
+            //edgeDesired[a, b] = edge.size;
+            //edgeDesired[b, a] = edge.size;
+
+            var maxScale = 100;
+            switch (edge.constraint)
+            {
+                case NavEdge.Constraint.NONE:
+                    edgeDesired[a, b] = 1;
+                    edgeDesired[b, a] = 1;
+
+                    break;
+                case NavEdge.Constraint.NO_FLOW:
+                    edgeDesired[a, b] = maxScale;
+                    edgeDesired[b, a] = maxScale;
+
+                    break;
+                case NavEdge.Constraint.HIGH_FLOW:
+                    edgeDesired[a, b] = -1;
+                    edgeDesired[b, a] = -1;
+
+                    break;
+                case NavEdge.Constraint.FORWARD_FLOW:
+                    edgeDesired[a, b] = 1;
+                    edgeDesired[b, a] = maxScale;
+
+                    break;
+                case NavEdge.Constraint.BACKWARD_FLOW:
+                    edgeDesired[a, b] = maxScale;
+                    edgeDesired[b, a] = 1;
+
+                    break;
+            }
+        }
+    }
+
     public IEnumerator UpdateAgentGoal(INavigable agent)
     {
+        UpdateDesiredOccupancy();
+
         #region Compute Node and Edge Differences
 
         nodeDiff = new int[allNodes.Length];
@@ -264,6 +339,18 @@ public class NavManager : MonoBehaviour
         var path = Dijkstra(currNode, nextNode);
         nextNode = path[1];
         nextInd = node2Index[nextNode];
+        while (nextNode.GetType() == typeof(GroupNavNode) && nodeDiff[nextInd] <= 0)
+        {
+            while (nextInd == currInd || groupNode2Index.ContainsKey(nextNode))
+            {
+                nextInd = Random.Range(0, allNodes.Length);
+                nextNode = allNodes[nextInd];
+            }
+            nextNode = Dijkstra(currNode, nextNode)[1];
+            nextInd = node2Index[nextNode];
+
+            yield return null;
+        }
 
         #region Update Occupancy
 
@@ -324,6 +411,11 @@ public class NavManager : MonoBehaviour
         {
             int currInd = MinDistIndex(dist, closed);
             closed[currInd] = true;
+
+            if (currInd == node2Index[goal])
+            {
+                break;
+            }
 
             for (int j = 0; j < dist.Length; j++)
             {

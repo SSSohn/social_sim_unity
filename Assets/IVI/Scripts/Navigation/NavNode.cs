@@ -11,6 +11,7 @@ public class NavNode : MonoBehaviour
     public bool         createGroupNode = false;
     public GameObject   createConnection = null;
     public float        radius;
+    public int          spawnCount = 0;
 
     private Dictionary<NavNode, NavEdge>   neighbors = new Dictionary<NavNode, NavEdge>();
     [HideInInspector]
@@ -80,10 +81,12 @@ public class NavNode : MonoBehaviour
 
             #endregion
         }
-        if (Application.isPlaying || !NavManager.VISUALIZE)
-        {
-            render.enabled = false;
-        }
+        //if (Application.isPlaying || !NavManager.VISUALIZE)
+        //{
+        //    render.enabled = false;
+        //}
+        if (NavManager.inst != null)
+            render.enabled = NavManager.inst.VISUALIZE;
     }
 
     public void OnDestroy()

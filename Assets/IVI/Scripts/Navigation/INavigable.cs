@@ -8,7 +8,7 @@ public abstract class INavigable : MonoBehaviour
     public NavNode destination;
     public bool navigating = false;
 
-    private void Start()
+    public void Start()
     {
         StartCoroutine(Coroutine());
     }

@@ -5,6 +5,12 @@ using UnityEngine.AI;
 
 public class DummyAgent : INavigable
 {
+
+    new void Start()
+    {
+        base.Start();
+    }
+
     public override void StartNavigation(NavNode dest)
     {
         var nma = GetComponent<NavMeshAgent>();

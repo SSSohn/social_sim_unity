@@ -82,9 +82,11 @@ public class NavEdge : MonoBehaviour
 
         #endregion
 
-        if (Application.isPlaying || !NavManager.VISUALIZE)
-        {
-            render.enabled = false;
-        }
+        //if (Application.isPlaying || !NavManager.VISUALIZE)
+        //{
+        //    render.enabled = false;
+        //}
+        if (NavManager.inst != null)
+            render.enabled = NavManager.inst.VISUALIZE;
     }
 }

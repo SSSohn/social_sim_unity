@@ -20,7 +20,7 @@ public class GroupNavNode : NavNode
     new void Update()
     {
         base.Update();
-
+        
         if (members != null)
         {
             foreach (var member in members)

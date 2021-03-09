@@ -72,7 +72,7 @@ public class SFAvatar : MonoBehaviour
     void Update()
     {
         UpdateAnimator();
-
+        
         if (path.Count > 1 && GroundDistance(transform.position, path[0]) < MIN_GOAL_DIST)
         {
             path.RemoveAt(0);
@@ -81,7 +81,9 @@ public class SFAvatar : MonoBehaviour
         {
             path.RemoveAt(0);
 
-            GetComponent<SFAvatarTarget>().InitDest();
+            StopAnimator();
+
+            //GetComponent<SFAvatarTarget>().InitDest();
         }
     }
 
@@ -118,6 +120,14 @@ public class SFAvatar : MonoBehaviour
     #endregion
 
     #region Public Functions
+
+    public void StopAnimator()
+    {
+        path.Clear();
+        animator.SetBool("Idling", true);
+        animator.SetFloat("Forward", 0);
+        animator.SetFloat("Strafe", 0);
+    }
 
     public void ComputePath(Vector3 destination)
     {
