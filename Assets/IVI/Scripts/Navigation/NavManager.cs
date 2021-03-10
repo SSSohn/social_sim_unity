@@ -78,6 +78,7 @@ public class NavManager : MonoBehaviour
                 agent.transform.parent = agentsGO.transform;
             }
         }
+        yield return null;
 
         #endregion
 

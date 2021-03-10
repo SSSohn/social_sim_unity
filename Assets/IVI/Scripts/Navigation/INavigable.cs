@@ -5,7 +5,9 @@ using UnityEngine.AI;
 
 public abstract class INavigable : MonoBehaviour
 {
+    [HideInInspector]
     public NavNode destination;
+    [HideInInspector]
     public bool navigating = false;
 
     public void Start()

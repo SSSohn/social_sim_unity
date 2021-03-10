@@ -12,7 +12,7 @@ public class SFAvatar : MonoBehaviour
     private float       RADIUS = 0.2f;
     private const float MIN_GOAL_DIST = 0.25f;
     private const float MASS = 80;
-    private const float PERCEPTION_RADIUS = 10;
+    private const float PERCEPTION_RADIUS = 5;
     private const float ANGULAR_SPEED = 60;
     
     private CapsuleCollider collisionCapsule;
