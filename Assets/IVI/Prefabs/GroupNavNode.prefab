@@ -1,5 +1,21 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!208 &9106058423264732192
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7600849120810805366}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 0
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!114 &1796164918586319190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12,10 +28,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 432856099f94cd94eb7b6e51952f5d2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  createNeighborNode: 0
+  createNode: 0
+  createGroupNode: 0
   createConnection: {fileID: 0}
   radius: 1
+  spawnCount: 0
+  render: {fileID: 0}
   groupSize: 5
+  minTime: 5
+  maxTime: 10
 --- !u!1001 &9151676213697263737
 PrefabInstance:
   m_ObjectHideFlags: 0

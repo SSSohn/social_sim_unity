@@ -11,7 +11,7 @@ public class DummyAgent : INavigable
         base.Start();
     }
 
-    public override void StartNavigation(NavNode dest)
+    public override void StartNavigation(NavNode dest, Vector3 offset)
     {
         var nma = GetComponent<NavMeshAgent>();
 
@@ -19,19 +19,19 @@ public class DummyAgent : INavigable
         nma.SetDestination(dest.transform.position);
     }
 
-    public override void StopNavigation(NavNode dest)
+    public override void StopNavigation()
     {
         GetComponent<NavMeshAgent>().isStopped = true;
     }
 
     public override void StartGroup(GroupNavNode group)
     {
-        group.members.Add(this);
+        group.AddMember(this);
     }
 
     public override void StopGroup(GroupNavNode group)
     {
-        group.members.Remove(this);
+        group.RemoveMember(this);
     }
 
 }

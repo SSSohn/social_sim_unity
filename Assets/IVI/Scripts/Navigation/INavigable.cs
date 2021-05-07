@@ -8,6 +8,8 @@ public abstract class INavigable : MonoBehaviour
     [HideInInspector]
     public NavNode destination;
     [HideInInspector]
+    public Vector3 destinationPos;
+    [HideInInspector]
     public bool navigating = false;
 
     public void Start()
@@ -17,9 +19,9 @@ public abstract class INavigable : MonoBehaviour
 
     #region Abstract Behaviors
 
-    public abstract void StartNavigation(NavNode destination);
+    public abstract void StartNavigation(NavNode destination, Vector3 offset);
 
-    public abstract void StopNavigation(NavNode destination);
+    public abstract void StopNavigation();
 
     public abstract void StartGroup(GroupNavNode group);
 
@@ -33,7 +35,7 @@ public abstract class INavigable : MonoBehaviour
         {
             if (CloseEnough())
             {
-                StopNavigation(destination);
+                StopNavigation();
 
                 navigating = false;
 
@@ -42,7 +44,8 @@ public abstract class INavigable : MonoBehaviour
                     var groupNode = (GroupNavNode)destination;
                     var time = groupNode.GetTime();
 
-                    StartGroup(groupNode);
+                    transform.LookAt(groupNode.transform.position, Vector3.up);
+                    //StartGroup(groupNode);
                     yield return new WaitForSeconds(time);
                     StopGroup(groupNode);
                 }
@@ -54,13 +57,13 @@ public abstract class INavigable : MonoBehaviour
         }
     }
 
-    public void InitDest(NavNode destNode)
+    public void InitDest(NavNode destNode, Vector3 offset)
     {
         destination = destNode;
 
         navigating = true;
 
-        StartNavigation(destination);
+        StartNavigation(destination, offset);
     }
 
     private bool AtGroupNode()
@@ -72,11 +75,11 @@ public abstract class INavigable : MonoBehaviour
     {
         if (destination != null)
         {
-            var destPos = destination.transform.position;
+            var destPos = destinationPos;
             var currPos = transform.position;
             currPos.y = 0;
             destPos.y = 0;
-            return navigating && Vector3.Distance(destPos, currPos) <= destination.radius;
+            return navigating && Vector3.Distance(destPos, currPos) <= (AtGroupNode() ? 0.5f : destination.radius);
         }
 
         return false;

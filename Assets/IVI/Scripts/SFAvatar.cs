@@ -10,7 +10,7 @@ public class SFAvatar : MonoBehaviour
     //[SerializeField]
     private bool        DRAW_DESIRED_VELOCITY = false;
     private float       RADIUS = 0.2f;
-    private const float MIN_GOAL_DIST = 0.25f;
+    private const float MIN_GOAL_DIST = 0.1f;
     private const float MASS = 80;
     private const float PERCEPTION_RADIUS = 5;
     private const float ANGULAR_SPEED = 60;
@@ -263,6 +263,15 @@ public class SFAvatar : MonoBehaviour
 
         foreach (var obstacle in obstacles)
         {
+            var bounds = obstacle.GetComponent<Renderer>().bounds;
+            var agentCenter = transform.position.y + 1;
+            var boundVolume = (bounds.max.x - bounds.min.x) * (bounds.max.y - bounds.min.y) * (bounds.max.z - bounds.min.z);
+            var valid = bounds.min.y < agentCenter && bounds.max.y > agentCenter && boundVolume > 4;
+            if (!valid)
+            {
+                continue;
+            }
+
             Vector3 closestPoint = obstacle.GetComponent<BoxCollider>().ClosestPoint(transform.position);
 
             var wallNorm = transform.position - closestPoint;

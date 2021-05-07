@@ -369,7 +369,16 @@ public class NavManager : MonoBehaviour
 
         #region Start Behavior
 
-        agent.InitDest(nextNode);
+        if (groupNode2Index.ContainsKey(nextNode))
+        {
+            var groupNode = (GroupNavNode)nextNode;
+            var offset = groupNode.AddMember(agent);
+            agent.InitDest(nextNode, offset);
+        }
+        else
+        {
+            agent.InitDest(nextNode, Vector3.zero);
+        }
         //print(string.Join(",", nodeOccupancy) + "\t\t" + nodeOccupancy.Sum() + " " + edgeOccupancy.Cast<int>().Sum() / 2);
 
         #endregion

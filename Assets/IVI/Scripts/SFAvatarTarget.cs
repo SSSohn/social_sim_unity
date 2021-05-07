@@ -14,23 +14,24 @@ public class SFAvatarTarget : INavigable
         agent = GetComponent<SFAvatar>();
     }
     
-    public override void StartNavigation(NavNode destination)
+    public override void StartNavigation(NavNode destination, Vector3 offset)
     {
-        agent.ComputePath(destination.transform.position);
+        destinationPos = destination.transform.position + offset;
+        agent.ComputePath(destinationPos);
     }
 
-    public override void StopNavigation(NavNode destination)
+    public override void StopNavigation()
     {
         agent.StopAnimator();
     }
 
     public override void StartGroup(GroupNavNode group)
     {
-        group.members.Add(this);
+        group.AddMember(this);
     }
 
     public override void StopGroup(GroupNavNode group)
     {
-        group.members.Remove(this);
+        group.RemoveMember(this);
     }
 }
