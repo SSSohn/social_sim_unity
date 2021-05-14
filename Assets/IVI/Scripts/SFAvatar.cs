@@ -263,6 +263,9 @@ public class SFAvatar : MonoBehaviour
 
         foreach (var obstacle in obstacles)
         {
+            if (obstacle.GetComponent<Renderer>() == null)
+                continue;
+
             var bounds = obstacle.GetComponent<Renderer>().bounds;
             var agentCenter = transform.position.y + 1;
             var boundVolume = (bounds.max.x - bounds.min.x) * (bounds.max.y - bounds.min.y) * (bounds.max.z - bounds.min.z);

@@ -79,7 +79,7 @@ public abstract class INavigable : MonoBehaviour
             var currPos = transform.position;
             currPos.y = 0;
             destPos.y = 0;
-            return navigating && Vector3.Distance(destPos, currPos) <= (AtGroupNode() ? 0.5f : destination.radius);
+            return navigating && Vector3.Distance(destPos, currPos) <= (AtGroupNode() ? 0.5f : destination.radius * Random.value);
         }
 
         return false;
